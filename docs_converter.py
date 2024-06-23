@@ -7,6 +7,7 @@ from pptx import Presentation
 from PIL import Image
 import magic
 import aspose.slides as slides
+import subprocess
 
 # Define an abstract class for converting documents to JPEG
 
@@ -118,19 +119,25 @@ class PPTToJPEGConverter:
             os.makedirs(self.output_dir)
 
     def convert(self):
-        # Load the presentation
-        pres = Presentation(self.ppt_file_path)
-        for i, slide in enumerate(pres.slides):
-            # Define path for saving the slide image
-            image_file = os.path.join(self.output_dir, f"slide_{i + 1}.jpg")
+        # Convert PPT to images using libreoffice
+        command = [
+            'libreoffice', '--headless', '--convert-to', 'jpg',
+            '--outdir', self.output_dir, self.ppt_file_path
+        ]
+        subprocess.run(command, check=True)
 
-            # Save the slide as a JPEG image
-            with slide.export_as_image() as image:
-                image.save(image_file, "JPEG")
-            print(f"Saved slide {i + 1} as JPEG at '{image_file}'")
+        # Rename the output files to match the desired format
+        for i, filename in enumerate(sorted(os.listdir(self.output_dir))):
+            if filename.endswith('.jpg'):
+                old_path = os.path.join(self.output_dir, filename)
+                new_path = os.path.join(self.output_dir, f"slide_{i + 1}.jpg")
+                os.rename(old_path, new_path)
+                print(f"Saved slide {i + 1} as JPEG at '{new_path}'")
 
-            # Export notes to a text file if they exist
-            if slide.notes_slide and slide.notes_slide.notes_text_frame.text:
+        # Extract notes using python-pptx
+        prs = Presentation(self.ppt_file_path)
+        for i, slide in enumerate(prs.slides):
+            if slide.has_notes_slide and slide.notes_slide.notes_text_frame.text:
                 notes_text = slide.notes_slide.notes_text_frame.text
                 text_file = os.path.join(
                     self.output_dir, f"slide_{i + 1}_notes.txt")

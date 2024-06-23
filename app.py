@@ -24,41 +24,6 @@ def clean_files_in_directory(directory):
             print(f"Skipping {file_path} (not a file)")
 
 
-# class PDFToJPEGConverter:
-#     def __init__(self, pdf_file_path, images_dir):
-#         self.pdf_file_path = pdf_file_path
-#         self.images_dir = images_dir
-#         # Set up logging
-
-#         # Create the images directory if it doesn't exist
-#         if not os.path.exists(self.images_dir):
-#             os.makedirs(self.images_dir)
-#         else:
-#             # Clean the directory if it already exists
-#             clean_files_in_directory(self.images_dir)
-
-#     def convert(self):
-#         """
-#         Convert each page of the PDF to a separate JPEG file.
-#         """
-#         try:
-#             # Convert PDF to a list of images
-#             images = convert_from_path(self.pdf_file_path)
-#             logging.info(
-#                 f"Successfully converted PDF to images: {self.pdf_file_path}")
-
-#             # Save each image as JPEG
-#             for index, image in enumerate(images):
-#                 image_path = f"{self.images_dir}/page_{index + 1}.jpg"
-#                 image.save(image_path, 'JPEG')
-#                 logging.info(f"Saved JPEG file at {image_path}")
-#         except FileNotFoundError:
-#             logging.error(
-#                 "The specified PDF file was not found. Please check the file path.")
-#         except Exception as e:
-#             logging.error(f"An error occurred during conversion: {str(e)}")
-
-
 class ImageProcessorClient:
     def __init__(self, api_url, images_dir, scripts_dir):
         self.api_url = api_url
