@@ -1,1 +1,4 @@
 pdf2image
+python-pptx # might not use
+python-magic
+Aspose.Slides

@@ -6,7 +6,7 @@ import os
 import json
 import openai
 from moviepy.editor import ImageClip, concatenate_videoclips, AudioFileClip
-
+from docs_converter import *
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,39 +24,39 @@ def clean_files_in_directory(directory):
             print(f"Skipping {file_path} (not a file)")
 
 
-class PDFToJPEGConverter:
-    def __init__(self, pdf_file_path, images_dir):
-        self.pdf_file_path = pdf_file_path
-        self.images_dir = images_dir
-        # Set up logging
+# class PDFToJPEGConverter:
+#     def __init__(self, pdf_file_path, images_dir):
+#         self.pdf_file_path = pdf_file_path
+#         self.images_dir = images_dir
+#         # Set up logging
 
-        # Create the images directory if it doesn't exist
-        if not os.path.exists(self.images_dir):
-            os.makedirs(self.images_dir)
-        else:
-            # Clean the directory if it already exists
-            clean_files_in_directory(self.images_dir)
+#         # Create the images directory if it doesn't exist
+#         if not os.path.exists(self.images_dir):
+#             os.makedirs(self.images_dir)
+#         else:
+#             # Clean the directory if it already exists
+#             clean_files_in_directory(self.images_dir)
 
-    def convert(self):
-        """
-        Convert each page of the PDF to a separate JPEG file.
-        """
-        try:
-            # Convert PDF to a list of images
-            images = convert_from_path(self.pdf_file_path)
-            logging.info(
-                f"Successfully converted PDF to images: {self.pdf_file_path}")
+#     def convert(self):
+#         """
+#         Convert each page of the PDF to a separate JPEG file.
+#         """
+#         try:
+#             # Convert PDF to a list of images
+#             images = convert_from_path(self.pdf_file_path)
+#             logging.info(
+#                 f"Successfully converted PDF to images: {self.pdf_file_path}")
 
-            # Save each image as JPEG
-            for index, image in enumerate(images):
-                image_path = f"{self.images_dir}/page_{index + 1}.jpg"
-                image.save(image_path, 'JPEG')
-                logging.info(f"Saved JPEG file at {image_path}")
-        except FileNotFoundError:
-            logging.error(
-                "The specified PDF file was not found. Please check the file path.")
-        except Exception as e:
-            logging.error(f"An error occurred during conversion: {str(e)}")
+#             # Save each image as JPEG
+#             for index, image in enumerate(images):
+#                 image_path = f"{self.images_dir}/page_{index + 1}.jpg"
+#                 image.save(image_path, 'JPEG')
+#                 logging.info(f"Saved JPEG file at {image_path}")
+#         except FileNotFoundError:
+#             logging.error(
+#                 "The specified PDF file was not found. Please check the file path.")
+#         except Exception as e:
+#             logging.error(f"An error occurred during conversion: {str(e)}")
 
 
 class ImageProcessorClient:
@@ -337,9 +337,9 @@ class OpenAIAPI:
 
 
 def smoke_test_pdf_to_jpeg_converter():
-    pdf_file_path = 'slides/PistolChartR1S.pdf'
+    pdf_file_path = 'slides/Presentation.pptx'
     output_folder = 'images'
-    converter = PDFToJPEGConverter(pdf_file_path, output_folder)
+    converter = ConverterFactory.create_converter(pdf_file_path, output_folder)
     converter.convert()
 
 
@@ -362,7 +362,7 @@ def smoke_test_text_to_speech_client():
 
 def smoke_test_openai_api():
     openai_api = OpenAIAPI(
-        'http://gpu:3002', '/data/dev/models/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf')
+        'http://gpu:5000', '/data/dev/models/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf')
     response = openai_api.call_openai_api(
         "Hello world! How are you doing today?")
     print(response)
@@ -381,7 +381,7 @@ def smoke_test_video_creator():
 
 def main():
     smoke_test_pdf_to_jpeg_converter()
-    smoke_test_image_processor_client()
+    # smoke_test_image_processor_client()
     # smoke_test_text_to_speech_client()
     # smoke_test_video_creator()
 
