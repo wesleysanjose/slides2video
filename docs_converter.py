@@ -110,38 +110,6 @@ class PDFToJPEGConverter(DocToJPEGConverter):
             logging.error(f"An error occurred during conversion: {str(e)}")
 
 
-# class PPTToJPEGConverter(DocToJPEGConverter):
-
-#     def __init__(self, ppt_file_path, images_dir):
-#         super().__init__(ppt_file_path, images_dir)
-
-#     def convert(self):
-#         prs = Presentation(self.file_path)
-#         for i, slide in enumerate(prs.slides):
-#             image_path = f"{self.images_dir}/slide_{i + 1}.jpg"
-#             img = Image.new('RGB', (int(prs.slide_width.pt),
-#                             int(prs.slide_height.pt)), 'white')
-#             slide.draw(img)  # Assuming a method to render slides exists
-#             img.save(image_path, 'JPEG')
-#             logging.info(f"Saved slide image to {image_path}")
-
-#             # Check for notes in the slide and save them
-#             if slide.has_notes_slide:
-#                 notes_slide = slide.notes_slide
-#                 text = notes_slide.notes_text_frame.text
-#                 text_filepath = f"{self.images_dir}/slide_{i + 1}_notes.txt"
-#                 with open(text_filepath, 'w') as txt_file:
-#                     txt_file.write(text)
-#                 logging.info(f'Saved notes to {text_filepath}')
-
-#     def render_slide_to_image(self, slide):
-#         # Since rendering slides is not supported natively by python-pptx, you would need to
-#         # implement or integrate a rendering solution here. This function is placeholder.
-#         # For demonstration, let's assume it returns a blank image.
-#         # Default PowerPoint slide size
-#         img = Image.new('RGB', (int(720), int(540)), 'white')
-#         return img
-
 class PPTToJPEGConverter:
     def __init__(self, ppt_file_path, output_dir):
         self.ppt_file_path = ppt_file_path
@@ -151,24 +119,53 @@ class PPTToJPEGConverter:
 
     def convert(self):
         # Load the presentation
-        with slides.Presentation(self.ppt_file_path) as pres:
-            for i, slide in enumerate(pres.slides):
-                # Define path for saving the slide image
-                image_file = os.path.join(
-                    self.output_dir, f"slide_{i + 1}.jpg")
-                # Save the slide as a JPEG image
-                slide.get_thumbnail(1.0, 1.0).save(
-                    image_file, slides.export.SaveFormat.JPEG)
-                print(f"Saved slide {i + 1} as JPEG at '{image_file}'")
+        pres = Presentation(self.ppt_file_path)
+        for i, slide in enumerate(pres.slides):
+            # Define path for saving the slide image
+            image_file = os.path.join(self.output_dir, f"slide_{i + 1}.jpg")
 
-                # Export notes to a text file if they exist
-                if slide.notes_slide_manager and slide.notes_slide_manager.notes_slide:
-                    notes_slide = slide.notes_slide_manager.notes_slide
-                    if notes_slide.notes_text_frame and notes_slide.notes_text_frame.text:
-                        notes_text = notes_slide.notes_text_frame.text
-                        text_file = os.path.join(
-                            self.output_dir, f"slide_{i + 1}_notes.txt")
-                        with open(text_file, 'w') as f:
-                            f.write(notes_text)
-                        print(
-                            f"Saved notes for slide {i + 1} at '{text_file}'")
+            # Save the slide as a JPEG image
+            with slide.export_as_image() as image:
+                image.save(image_file, "JPEG")
+            print(f"Saved slide {i + 1} as JPEG at '{image_file}'")
+
+            # Export notes to a text file if they exist
+            if slide.notes_slide and slide.notes_slide.notes_text_frame.text:
+                notes_text = slide.notes_slide.notes_text_frame.text
+                text_file = os.path.join(
+                    self.output_dir, f"slide_{i + 1}_notes.txt")
+                with open(text_file, 'w', encoding='utf-8') as f:
+                    f.write(notes_text)
+                print(f"Saved notes for slide {i + 1} at '{text_file}'")
+
+
+# class PPTToJPEGConverter:
+#     def __init__(self, ppt_file_path, output_dir):
+#         self.ppt_file_path = ppt_file_path
+#         self.output_dir = output_dir
+#         if not os.path.exists(self.output_dir):
+#             os.makedirs(self.output_dir)
+
+#     def convert(self):
+#         # Load the presentation
+#         with slides.Presentation(self.ppt_file_path) as pres:
+#             for i, slide in enumerate(pres.slides):
+#                 # Define path for saving the slide image
+#                 image_file = os.path.join(
+#                     self.output_dir, f"slide_{i + 1}.jpg")
+#                 # Save the slide as a JPEG image
+#                 slide.get_thumbnail(1.0, 1.0).save(
+#                     image_file, SaveFormat.JPEG)
+#                 print(f"Saved slide {i + 1} as JPEG at '{image_file}'")
+
+#                 # Export notes to a text file if they exist
+#                 if slide.notes_slide_manager and slide.notes_slide_manager.notes_slide:
+#                     notes_slide = slide.notes_slide_manager.notes_slide
+#                     if notes_slide.notes_text_frame and notes_slide.notes_text_frame.text:
+#                         notes_text = notes_slide.notes_text_frame.text
+#                         text_file = os.path.join(
+#                             self.output_dir, f"slide_{i + 1}_notes.txt")
+#                         with open(text_file, 'w') as f:
+#                             f.write(notes_text)
+#                         print(
+#                             f"Saved notes for slide {i + 1} at '{text_file}'")

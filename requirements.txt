@@ -5,3 +5,4 @@ Aspose.Slides
 openai
 moviepy
 requests
+Pillow
